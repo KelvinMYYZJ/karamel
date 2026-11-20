@@ -1323,15 +1323,17 @@ let wrap_verbatim lid flags d =
     [] @
   []
 
-let enum_as_macros cases =
-  (* Since enums do not support arithmetic operations, we have no issues with
-    integer promotion and need not concern ourselves with suffixes or e.g. a
-    constant being promoted to a large signed type unintentionally. *)
+(** Render discriminants as constants of the selected enum representation. Large decimal
+    literals need a suffix, and signed minima need the same treatment as ordinary C constants. *)
+let enum_as_macros width cases =
+  let literal value =
+    KPrint.bsprintf "%a" (PrintCommon.printf_of_pprint (PrintC.p_constant width)) (Z.to_string value)
+  in
   let lines: string list = List.mapi (fun i (c, v) ->
     match v with
     | None -> KPrint.bsprintf "#define %s %d" c i
     | Some v ->
-        KPrint.bsprintf "#define %s %s" c (Z.to_string v)
+        KPrint.bsprintf "#define %s %s" c (literal v)
   ) cases in
   String.concat "\n" lines
 
@@ -1498,19 +1500,19 @@ let mk_type_or_external m (w: where) ?(is_inline_static=false) (d: decl): C.decl
                 K.UInt32
               else if Z.(geq min_value zero && leq max_value (of_string "0xffffffffffffffff")) then
                 K.UInt64
-              else if Z.(geq min_value (of_string "-0x7e") && leq max_value (of_string "0x7f")) then
+              else if Z.(geq min_value (of_string "-0x80") && leq max_value (of_string "0x7f")) then
                 K.Int8
-              else if Z.(geq min_value (of_string "-0x7ffe") && leq max_value (of_string "0x7fff")) then
+              else if Z.(geq min_value (of_string "-0x8000") && leq max_value (of_string "0x7fff")) then
                 K.Int16
-              else if Z.(geq min_value (of_string "-0x7ffffffe") && leq max_value (of_string "0x7fffffff")) then
+              else if Z.(geq min_value (of_string "-0x80000000") && leq max_value (of_string "0x7fffffff")) then
                 K.Int32
-              else if Z.(geq min_value (of_string "-0x7ffffffffffffffe") && leq max_value (of_string "0x7fffffffffffffff")) then
+              else if Z.(geq min_value (of_string "-0x8000000000000000") && leq max_value (of_string "0x7fffffffffffffff")) then
                 K.Int64
               else
                 failwith "TODO: support for negative enum values"
             in
             let cases = List.map (fun (lid, v) -> to_c_name m (lid, Other), v) cases in
-            wrap_verbatim name flags (Text (enum_as_macros cases)) @
+            wrap_verbatim name flags (Text (enum_as_macros t cases)) @
             let qs, spec, decl = mk_spec_and_declarator_t m name (Int t) in
             [ Decl ([], (qs, spec, None, Some Typedef, { maybe_unused = false; target = None }, [ decl, None, None ]))]
         | _ ->
