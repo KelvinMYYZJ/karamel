@@ -40,6 +40,20 @@ typedef double float64_t;
 /* Macros that KaRaMeL will generate.                                         */
 /******************************************************************************/
 
+/* Bind a C declaration to a native foreign symbol. The target's ordinary label
+ * prefix is retained (for example, '_' on Darwin), but the C identifier stays
+ * distinct from library prototypes. Other toolchains can supply an override. */
+#ifndef KRML_LINK_NAME
+#  if defined(__GNUC__) || defined(__clang__)
+#    define KRML_LINK_NAME_STRINGIFY_(x) #x
+#    define KRML_LINK_NAME_STRINGIFY(x) KRML_LINK_NAME_STRINGIFY_(x)
+#    define KRML_LINK_NAME(name) \
+       __asm__(KRML_LINK_NAME_STRINGIFY(__USER_LABEL_PREFIX__) name)
+#  else
+#    define KRML_LINK_NAME(name) KRML_LINK_NAME_REQUIRES_ASSEMBLER_LABEL_SUPPORT
+#  endif
+#endif
+
 /* For "bare" targets that do not have a C stdlib, the user might want to use
  * [-add-early-include '"mydefinitions.h"'] and override these. */
 #ifndef KRML_HOST_PRINTF

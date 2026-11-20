@@ -169,6 +169,8 @@ and print_flag = function
       string "__attribute__((unused))"
   | Target s ->
       string ("__attribute__((target = "^s^"))")
+  | CLinkName name ->
+      string ("link_name " ^ name)
   | Workspace ->
       string "workspace"
 

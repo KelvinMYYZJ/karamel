@@ -1458,6 +1458,12 @@ let hand_written lid =
  * are either declared in the header (public), or in the c file (private), but
  * not twice. *)
 let mk_type_or_external m (w: where) ?(is_inline_static=false) (d: decl): C.declaration_or_function list =
+  (* Preserve the native symbol without renaming C identifiers or conflicting with library headers. *)
+  let with_link_name flags decl =
+    match List.find_map (function CLinkName name -> Some name | _ -> None) flags with
+    | Some name -> C.LinkName (decl, name)
+    | None -> decl
+  in
   let mk_forward_decl name flags k =
     let d = match k with
       | FStruct -> C.Struct (Some (name ^ "_s"), None)
@@ -1543,7 +1549,7 @@ let mk_type_or_external m (w: where) ?(is_inline_static=false) (d: decl): C.decl
           else
             None
         in
-        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, inline, Some Extern, { maybe_unused = false; target = None }, [ decl, None, None ])))
+        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, inline, Some Extern, { maybe_unused = false; target = None }, [ with_link_name flags decl, None, None ])))
 
   | External (name, t, flags, _) ->
       if is_primitive name ||
@@ -1553,7 +1559,7 @@ let mk_type_or_external m (w: where) ?(is_inline_static=false) (d: decl): C.decl
       else
         let name = to_c_name m (name, Other) in
         let qs, spec, decl = mk_spec_and_declarator m name t in
-        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, None, Some Extern, { maybe_unused = false; target = None }, [ decl, None, None ])))
+        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, None, Some Extern, { maybe_unused = false; target = None }, [ with_link_name flags decl, None, None ])))
 
   | Global (name, macro, flags, _, body) when macro && not (is_inline_static && declared_in_library name) ->
       (* Macros behave like types, they ought to be declared once. *)

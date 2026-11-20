@@ -67,6 +67,17 @@ let p_or p x =
   let npow2_31 = npow2 31
   let npow2_63 = npow2 63
 
+(* Print an exact byte string; fixed-width octal escapes cannot absorb following digits. *)
+let p_link_name name =
+  let bytes = Buffer.create (String.length name) in
+  String.iter (fun c ->
+    if c >= ' ' && c <= '~' && c <> '"' && c <> '\\' then
+      Buffer.add_char bytes c
+    else
+      Buffer.add_string bytes (Printf.sprintf "\\%03o" (Char.code c))
+  ) name;
+  dquotes (string (Buffer.contents bytes))
+
 let rec p_type_spec = function
   | Int w -> print_width w
   | Void -> string "void"
@@ -151,6 +162,8 @@ and p_type_declarator d =
     | d ->
         lparen ^^ p_any d ^^ rparen
   and p_any = function
+    | LinkName (d, name) ->
+        p_any d ^^ space ^^ string "KRML_LINK_NAME" ^^ parens (p_link_name name)
     | Pointer (qs, d) ->
         star ^^ p_qualifiers_break qs ^^ p_any d
     | d ->

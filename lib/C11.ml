@@ -42,6 +42,8 @@ and declarator =
   | Pointer of qualifier list * declarator
   | Array of qualifier list * declarator * expr option
   | Function of calling_convention option * declarator * params
+  | LinkName of declarator * string
+      (** An external declarator bound to a native symbol through an assembler label. *)
 
 and expr =
   | Op1 of K.op * expr
