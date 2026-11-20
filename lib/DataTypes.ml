@@ -1207,11 +1207,25 @@ let debug_map map =
 (* Seventh step: remove casts to struct types ... not supported by the C
  * compiler. *)
 let remove_non_scalar_casts = object (self)
-  inherit [_] map
+  inherit [_] map as super
+
+  val mutable enum_names = Idents.LidSet.empty
+
+  (* Enum names remain qualified scalar types, unlike aggregate names. Keep their casts so
+     a numeric source does not become an ill-typed enum expression after datatype lowering. *)
+  method! visit_files env files =
+    enum_names <- List.fold_left (fun names (_, declarations) ->
+      List.fold_left (fun names -> function
+        | DType (name, _, _, _, Enum _) -> Idents.LidSet.add name names
+        | _ -> names
+      ) names declarations
+    ) Idents.LidSet.empty files;
+    super#visit_files env files
 
   method! visit_ECast (env, t) e t_dest =
     let e = self#visit_expr_w env e in
     match t_dest with
+    | TQualified lid when Idents.LidSet.mem lid enum_names -> ECast (e, t_dest)
     | TQualified lid ->
         (* Type abbreviations have been inlined at this stage. If an lid
          * remains, it's a scalar type. *)
