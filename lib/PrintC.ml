@@ -234,6 +234,10 @@ and defeat_Wparentheses op e prec =
   else match op, e with
   | (BShiftL | BShiftR | BXor | BOr | BAnd), Op2 ((Add | Sub | BOr | BXor | BAnd), _, _) ->
       0
+  | (BXor | Xor | BOr | BAnd), Op2 ((Eq | Neq | Lt | Lte | Gt | Gte), _, _) ->
+      (* Comparisons bind more tightly, but GCC still requests these parentheses.
+         Boolean Xor is printed with the same C token as bitwise BXor. *)
+      0
   | Or, Op2 (And, _, _) ->
       0
   | (Lt | Lte | Gt | Gte), Op2 ((Add | Sub), _, _) when !Options.microsoft ->
