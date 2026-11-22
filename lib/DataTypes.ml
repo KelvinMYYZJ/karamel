@@ -1407,6 +1407,19 @@ let remove_one_branch_matches = object (self)
         EMatch (c, scrut, self#visit_branches env branches)
 end
 
+(* Replace enum aliases introduced by tag hash-consing with their canonical type. Constructors,
+   switch scrutinees and patterns must use the declaring type when C names are disambiguated.
+   Only ToEnum values are rewritten: payload-bearing tagged unions retain their aggregate type. *)
+let canonicalize_enum_types (schemes, _, tag_remap) files =
+  (object
+    inherit [_] map
+
+    method! visit_TQualified _ lid =
+      match Hashtbl.find_opt schemes lid, Hashtbl.find_opt tag_remap lid with
+      | Some ToEnum, Some canonical -> TQualified canonical
+      | _ -> TQualified lid
+  end)#visit_files () files
+
 (* General compilation scheme *)
 let everything files =
   let map = build_scheme_map files in
@@ -1414,6 +1427,7 @@ let everything files =
   let files = if Options.rust () then remove_one_branch_matches#visit_files () files else (compile_all_matches map)#visit_files () files in
   let files = remove_non_scalar_casts#visit_files () files in
   let files = remove_empty_structs files in
+  let files = canonicalize_enum_types map files in
   map, files
 
 let anonymous_unions map files =
