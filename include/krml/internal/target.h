@@ -257,84 +257,85 @@ inline static int32_t krml_time(void) {
 #  define KRML_DEPRECATED(x) __declspec(deprecated(x))
 #endif
 
-/* Macros for prettier unrolling of loops */
-#define KRML_LOOP1(i, n, x) { \
-  x \
-  i += n; \
-  (void) i; \
+/* The variadic body preserves commas in declarations and initializers, including
+ * commas introduced when nested loop bodies or other macros are expanded. */
+#define KRML_LOOP1(i, n, ...) {                                               \
+  __VA_ARGS__                                                                 \
+  i += n;                                                                     \
+  (void) i;                                                                   \
 }
 
-#define KRML_LOOP2(i, n, x)                                                    \
-  KRML_LOOP1(i, n, x)                                                          \
-  KRML_LOOP1(i, n, x)
+#define KRML_LOOP2(i, n, ...)                                                 \
+  KRML_LOOP1(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP1(i, n, __VA_ARGS__)
 
-#define KRML_LOOP3(i, n, x)                                                    \
-  KRML_LOOP2(i, n, x)                                                          \
-  KRML_LOOP1(i, n, x)
+#define KRML_LOOP3(i, n, ...)                                                 \
+  KRML_LOOP2(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP1(i, n, __VA_ARGS__)
 
-#define KRML_LOOP4(i, n, x)                                                    \
-  KRML_LOOP2(i, n, x)                                                          \
-  KRML_LOOP2(i, n, x)
+#define KRML_LOOP4(i, n, ...)                                                 \
+  KRML_LOOP2(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP2(i, n, __VA_ARGS__)
 
-#define KRML_LOOP5(i, n, x)                                                    \
-  KRML_LOOP4(i, n, x)                                                          \
-  KRML_LOOP1(i, n, x)
+#define KRML_LOOP5(i, n, ...)                                                 \
+  KRML_LOOP4(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP1(i, n, __VA_ARGS__)
 
-#define KRML_LOOP6(i, n, x)                                                    \
-  KRML_LOOP4(i, n, x)                                                          \
-  KRML_LOOP2(i, n, x)
+#define KRML_LOOP6(i, n, ...)                                                 \
+  KRML_LOOP4(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP2(i, n, __VA_ARGS__)
 
-#define KRML_LOOP7(i, n, x)                                                    \
-  KRML_LOOP4(i, n, x)                                                          \
-  KRML_LOOP3(i, n, x)
+#define KRML_LOOP7(i, n, ...)                                                 \
+  KRML_LOOP4(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP3(i, n, __VA_ARGS__)
 
-#define KRML_LOOP8(i, n, x)                                                    \
-  KRML_LOOP4(i, n, x)                                                          \
-  KRML_LOOP4(i, n, x)
+#define KRML_LOOP8(i, n, ...)                                                 \
+  KRML_LOOP4(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP4(i, n, __VA_ARGS__)
 
-#define KRML_LOOP9(i, n, x)                                                    \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP1(i, n, x)
+#define KRML_LOOP9(i, n, ...)                                                 \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP1(i, n, __VA_ARGS__)
 
-#define KRML_LOOP10(i, n, x)                                                   \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP2(i, n, x)
+#define KRML_LOOP10(i, n, ...)                                                \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP2(i, n, __VA_ARGS__)
 
-#define KRML_LOOP11(i, n, x)                                                   \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP3(i, n, x)
+#define KRML_LOOP11(i, n, ...)                                                \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP3(i, n, __VA_ARGS__)
 
-#define KRML_LOOP12(i, n, x)                                                   \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP4(i, n, x)
+#define KRML_LOOP12(i, n, ...)                                                \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP4(i, n, __VA_ARGS__)
 
-#define KRML_LOOP13(i, n, x)                                                   \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP5(i, n, x)
+#define KRML_LOOP13(i, n, ...)                                                \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP5(i, n, __VA_ARGS__)
 
-#define KRML_LOOP14(i, n, x)                                                   \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP6(i, n, x)
+#define KRML_LOOP14(i, n, ...)                                                \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP6(i, n, __VA_ARGS__)
 
-#define KRML_LOOP15(i, n, x)                                                   \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP7(i, n, x)
+#define KRML_LOOP15(i, n, ...)                                                \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP7(i, n, __VA_ARGS__)
 
-#define KRML_LOOP16(i, n, x)                                                   \
-  KRML_LOOP8(i, n, x)                                                          \
-  KRML_LOOP8(i, n, x)
+#define KRML_LOOP16(i, n, ...)                                                \
+  KRML_LOOP8(i, n, __VA_ARGS__)                                               \
+  KRML_LOOP8(i, n, __VA_ARGS__)
 
-#define KRML_UNROLL_FOR(i, z, n, k, x)                                         \
-  do {                                                                         \
-    uint32_t i = z;                                                            \
-    KRML_LOOP##n(i, k, x)                                                      \
+#define KRML_UNROLL_FOR(i, z, n, k, ...)                                      \
+  do {                                                                        \
+    uint32_t i = z;                                                           \
+    KRML_LOOP##n(i, k, __VA_ARGS__)                                           \
   } while (0)
 
-#define KRML_ACTUAL_FOR(i, z, n, k, x)                                         \
-  do {                                                                         \
-    for (uint32_t i = z; i < n; i += k) {                                      \
-      x                                                                        \
-    }                                                                          \
+#define KRML_ACTUAL_FOR(i, z, n, k, ...)                                      \
+  do {                                                                        \
+    for (uint32_t i = z; i < n; i += k) {                                     \
+      __VA_ARGS__                                                             \
+    }                                                                         \
   } while (0)
 
 #ifndef KRML_UNROLL_MAX
@@ -343,104 +344,104 @@ inline static int32_t krml_time(void) {
 
 /* 1 is the number of loop iterations, i.e. (n - z)/k as evaluated by krml */
 #if 0 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR0(i, z, n, k, x)
+#  define KRML_MAYBE_FOR0(i, z, n, k, ...)
 #else
-#  define KRML_MAYBE_FOR0(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR0(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 1 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR1(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 1, k, x)
+#  define KRML_MAYBE_FOR1(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 1, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR1(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR1(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 2 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR2(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 2, k, x)
+#  define KRML_MAYBE_FOR2(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 2, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR2(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR2(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 3 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR3(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 3, k, x)
+#  define KRML_MAYBE_FOR3(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 3, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR3(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR3(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 4 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR4(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 4, k, x)
+#  define KRML_MAYBE_FOR4(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 4, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR4(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR4(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 5 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR5(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 5, k, x)
+#  define KRML_MAYBE_FOR5(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 5, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR5(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR5(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 6 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR6(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 6, k, x)
+#  define KRML_MAYBE_FOR6(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 6, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR6(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR6(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 7 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR7(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 7, k, x)
+#  define KRML_MAYBE_FOR7(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 7, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR7(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR7(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 8 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR8(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 8, k, x)
+#  define KRML_MAYBE_FOR8(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 8, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR8(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR8(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 9 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR9(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 9, k, x)
+#  define KRML_MAYBE_FOR9(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 9, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR9(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR9(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 10 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR10(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 10, k, x)
+#  define KRML_MAYBE_FOR10(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 10, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR10(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR10(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 11 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR11(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 11, k, x)
+#  define KRML_MAYBE_FOR11(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 11, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR11(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR11(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 12 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR12(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 12, k, x)
+#  define KRML_MAYBE_FOR12(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 12, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR12(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR12(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 13 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR13(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 13, k, x)
+#  define KRML_MAYBE_FOR13(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 13, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR13(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR13(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 14 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR14(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 14, k, x)
+#  define KRML_MAYBE_FOR14(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 14, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR14(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR14(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 15 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR15(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 15, k, x)
+#  define KRML_MAYBE_FOR15(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 15, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR15(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR15(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 
 #if 16 <= KRML_UNROLL_MAX
-#  define KRML_MAYBE_FOR16(i, z, n, k, x) KRML_UNROLL_FOR(i, z, 16, k, x)
+#  define KRML_MAYBE_FOR16(i, z, n, k, ...) KRML_UNROLL_FOR(i, z, 16, k, __VA_ARGS__)
 #else
-#  define KRML_MAYBE_FOR16(i, z, n, k, x) KRML_ACTUAL_FOR(i, z, n, k, x)
+#  define KRML_MAYBE_FOR16(i, z, n, k, ...) KRML_ACTUAL_FOR(i, z, n, k, __VA_ARGS__)
 #endif
 #endif /* KRML_HEADER_TARGET_H */
