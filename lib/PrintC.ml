@@ -10,6 +10,23 @@ open PPrint
 open PrintCommon
 open C
 
+(* Keep arbitrary comment text inside its C comment, including after trigraph replacement and
+ * backslash-newline splicing. Only dangerous delimiters or preprocessing sequences are changed. *)
+let escape_comment s =
+  let length = String.length s in
+  let buffer = Buffer.create length in
+  for i = 0 to length - 1 do
+    let current = s.[i] in
+    let next = if i + 1 < length then Some s.[i + 1] else None in
+    if current = '\000' then Buffer.add_string buffer "\\0"
+    else Buffer.add_char buffer current;
+    match current, next with
+    | '/', Some '*' | '*', Some '/' | '?', Some '?' -> Buffer.add_char buffer ' '
+    | '\\', (None | Some '\n' | Some '\r') -> Buffer.add_string buffer " (line end)"
+    | _ -> ()
+  done;
+  Buffer.contents buffer
+
 (* Pretty-printing of actual C syntax *****************************************)
 
 let p_storage_spec = function
@@ -389,8 +406,7 @@ and p_expr' curr = function
 (* statement-level comment *)
 and p_comment s =
   if s <> "" then
-    (* TODO: escape *)
-    string "/* " ^^ nest 2 (separate_map hardline string (String.split_on_char '\n' s)) ^^ string " */"
+    string "/* " ^^ nest 2 (separate_map hardline string (String.split_on_char '\n' (escape_comment s))) ^^ string " */"
   else
     empty
 
@@ -545,11 +561,11 @@ and p_stmts stmts = separate_map hardline p_stmt stmts
 
 (* This is for toplevel comments *)
 let p_comments cs =
-  separate_map hardline (fun c -> string ("/**\n" ^ c ^ "\n*/")) cs ^^
+  separate_map hardline (fun c -> string ("/**\n" ^ escape_comment c ^ "\n*/")) cs ^^
   if List.length cs > 0 then hardline else empty
 
 let p_microsoft_comments cs =
-  separate_map hardline (fun c -> string ("/*++\n" ^ c ^ "\n--*/")) cs ^^
+  separate_map hardline (fun c -> string ("/*++\n" ^ escape_comment c ^ "\n--*/")) cs ^^
   if List.length cs > 0 then hardline else empty
 
 (* We require infinite width to force this to be rendered on a single line. We
