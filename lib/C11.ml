@@ -22,6 +22,8 @@ and storage_spec =
   | Typedef
   | Extern
   | Static
+  | ThreadLocal of storage_spec option
+      (** Native thread storage, optionally combined with static or extern linkage. *)
 
 and qualifier =
   | Const

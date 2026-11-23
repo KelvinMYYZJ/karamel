@@ -1347,6 +1347,10 @@ let strengthen_array m t expr =
   | _ ->
       t
 
+(** Preserve native TLS storage alongside the object's existing linkage. *)
+let thread_local_storage flags storage =
+  if List.mem Common.ThreadLocal flags then Some (C11.ThreadLocal storage) else storage
+
 (** Function definition or global definition. *)
 let mk_function_or_global_body m (d: decl): C.declaration_or_function list =
   match d with
@@ -1392,6 +1396,7 @@ let mk_function_or_global_body m (d: decl): C.declaration_or_function list =
         let t = if List.mem (Common.Const "") flags then CStar.Const t else t in
         let qs, spec, decl = mk_spec_and_declarator m name t in
         let static = if List.exists ((=) Private) flags then Some Static else None in
+        let static = thread_local_storage flags static in
         let extra = { maybe_unused = List.mem MaybeUnused flags; target = List.find_map (function | Target s -> Some s | _ -> None) flags } in
         match expr with
         | Any ->
@@ -1444,7 +1449,7 @@ let mk_function_or_global_stub m (d: decl): C.declaration_or_function list =
         let t = strengthen_array m t expr in
         let t = if List.mem (Common.Const "") flags then CStar.Const t else t in
         let qs, spec, decl = mk_spec_and_declarator m name t in
-        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, None, Some Extern, { maybe_unused = false; target = None }, [ decl, None, None ])))
+        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, None, thread_local_storage flags (Some Extern), { maybe_unused = false; target = None }, [ decl, None, None ])))
 
 type where = H | C
 
@@ -1563,7 +1568,7 @@ let mk_type_or_external m (w: where) ?(is_inline_static=false) (d: decl): C.decl
       else
         let name = to_c_name m (name, Other) in
         let qs, spec, decl = mk_spec_and_declarator m name t in
-        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, None, Some Extern, { maybe_unused = false; target = None }, [ with_link_name flags decl, None, None ])))
+        wrap_verbatim name flags (Decl (mk_comments flags, (qs, spec, None, thread_local_storage flags (Some Extern), { maybe_unused = false; target = None }, [ with_link_name flags decl, None, None ])))
 
   | Global (name, macro, flags, _, body) when macro && not (is_inline_static && declared_in_library name) ->
       (* Macros behave like types, they ought to be declared once. *)

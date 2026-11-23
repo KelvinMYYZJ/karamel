@@ -173,6 +173,8 @@ and print_flag = function
       string ("link_name " ^ name)
   | CVariadic ->
       string "c_variadic"
+  | ThreadLocal ->
+      string "thread_local"
   | Workspace ->
       string "workspace"
 

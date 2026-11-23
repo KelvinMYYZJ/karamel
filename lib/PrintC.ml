@@ -29,10 +29,13 @@ let escape_comment s =
 
 (* Pretty-printing of actual C syntax *****************************************)
 
-let p_storage_spec = function
+let rec p_storage_spec = function
   | Typedef -> string "typedef"
   | Extern -> string "extern"
   | Static -> string "static"
+  | ThreadLocal linkage ->
+      string "KRML_THREAD_LOCAL" ^^
+      (match linkage with None -> empty | Some linkage -> space ^^ p_storage_spec linkage)
 
 (* This is abusing the definition of a compound statement to ensure it is printed with braces. *)
 let nest_if f stmt =

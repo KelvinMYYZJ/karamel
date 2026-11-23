@@ -138,6 +138,17 @@ typedef double float64_t;
 #  endif
 #endif
 
+/* Native TLS storage for C, C++ and MSVC; linkage is emitted separately. */
+#ifndef KRML_THREAD_LOCAL
+#  if defined(__cplusplus)
+#    define KRML_THREAD_LOCAL thread_local
+#  elif defined(_MSC_VER)
+#    define KRML_THREAD_LOCAL __declspec(thread)
+#  else
+#    define KRML_THREAD_LOCAL _Thread_local
+#  endif
+#endif
+
 #ifndef KRML_PRE_ALIGN
 #  ifdef _MSC_VER
 #    define KRML_PRE_ALIGN(X) __declspec(align(X))
