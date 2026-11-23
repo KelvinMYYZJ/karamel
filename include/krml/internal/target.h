@@ -54,6 +54,18 @@ typedef double float64_t;
 #  endif
 #endif
 
+/* Optional external symbols must resolve to a null address when absent. Do not
+ * silently turn them into strong imports on unsupported object formats. */
+#ifndef KRML_WEAK_IMPORT
+#  if (defined(__GNUC__) || defined(__clang__)) && defined(__APPLE__)
+#    define KRML_WEAK_IMPORT __attribute__((weak_import))
+#  elif (defined(__GNUC__) || defined(__clang__)) && defined(__ELF__)
+#    define KRML_WEAK_IMPORT __attribute__((weak))
+#  else
+#    define KRML_WEAK_IMPORT KRML_WEAK_IMPORT_REQUIRES_WEAK_SYMBOL_SUPPORT
+#  endif
+#endif
+
 /* For "bare" targets that do not have a C stdlib, the user might want to use
  * [-add-early-include '"mydefinitions.h"'] and override these. */
 #ifndef KRML_HOST_PRINTF

@@ -67,6 +67,8 @@ type flag =
       (** Native linker symbol of an external declaration, independent of its C identifier. *)
   | CVariadic
       (** A direct external C call has a fixed parameter prefix followed by ellipsis arguments. *)
+  | CWeak
+      (** An external native symbol may remain unresolved, yielding a null address. *)
   | ThreadLocal
       (** A global object has native per-thread storage, including external declarations. *)
   | MustInline

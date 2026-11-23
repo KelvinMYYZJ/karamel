@@ -189,6 +189,8 @@ and p_type_declarator d =
     | d ->
         lparen ^^ p_any d ^^ rparen
   and p_any = function
+    | Weak d ->
+        p_any d ^^ space ^^ string "KRML_WEAK_IMPORT"
     | LinkName (d, name) ->
         p_any d ^^ space ^^ string "KRML_LINK_NAME" ^^ parens (p_link_name name)
     | Pointer (qs, d) ->

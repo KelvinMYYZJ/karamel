@@ -1465,9 +1465,11 @@ let hand_written lid =
 let mk_type_or_external m (w: where) ?(is_inline_static=false) (d: decl): C.declaration_or_function list =
   (* Preserve the native symbol without renaming C identifiers or conflicting with library headers. *)
   let with_link_name flags decl =
-    match List.find_map (function CLinkName name -> Some name | _ -> None) flags with
-    | Some name -> C.LinkName (decl, name)
-    | None -> decl
+    let decl = match List.find_map (function CLinkName name -> Some name | _ -> None) flags with
+      | Some name -> C.LinkName (decl, name)
+      | None -> decl
+    in
+    if List.mem CWeak flags then C.Weak decl else decl
   in
   let mk_forward_decl name flags k =
     let d = match k with

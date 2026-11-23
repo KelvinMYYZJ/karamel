@@ -48,6 +48,8 @@ and declarator =
       (** Marks an external Function declarator whose fixed parameters are followed by ellipsis. *)
   | LinkName of declarator * string
       (** An external declarator bound to a native symbol through an assembler label. *)
+  | Weak of declarator
+      (** An optional external symbol; absence must not become a strong link dependency. *)
 
 and expr =
   | Op1 of K.op * expr
