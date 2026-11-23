@@ -49,6 +49,8 @@ let c_string = TQualified ([ "Prims" ], "string")
 
 type env = {
   globals: typ M.t;
+  variadics: unit M.t;
+    (* Direct native C declarations; their type retains only the fixed parameter prefix. *)
   locals: binder list;
   types: type_def M.t;
   location: loc list;
@@ -60,6 +62,7 @@ type env = {
 
 let empty: env = {
   globals = M.empty;
+  variadics = M.empty;
   locals = [];
   types = M.empty;
   location = [];
@@ -131,8 +134,11 @@ let populate_env files =
           let t = List.fold_right (fun b t2 -> TArrow (b.typ, t2)) binders ret in
           let t = if n_cgs > 0 || n > 0 then TPoly ({ n; n_cgs }, t) else t in
           { env with globals = M.add lid t env.globals }
-      | DExternal (_, _, _, _, lid, typ, _) ->
-          { env with globals = M.add lid typ env.globals }
+      | DExternal (_, flags, _, _, lid, typ, _) ->
+          let variadics = if List.mem Common.CVariadic flags then
+            M.add lid () env.variadics
+          else env.variadics in
+          { env with globals = M.add lid typ env.globals; variadics }
     ) env decls
   ) empty files
 
@@ -672,7 +678,21 @@ and infer' env e =
   | EApp (e, es) ->
       let env = locate env (Call (KPrint.bsprintf "%a" pexpr e)) in
       let t = infer env e in
-      if t = TAny then
+      if (match e.node with EQualified lid -> M.mem lid env.variadics | _ -> false) then begin
+        (* A variadic call is saturated, never partially applied. Additional C scalar arguments
+           retain their actual types so the C compiler performs its normal ABI promotions. *)
+        let output, fixed_types = flatten_arrow t in
+        if fixed_types = [] || List.length es < List.length fixed_types then
+          checker_error env "A variadic C call is missing fixed arguments";
+        let fixed, extra = KList.split (List.length fixed_types) es in
+        ignore (List.map2 (check_or_infer env) fixed_types fixed);
+        List.iter (fun argument ->
+          match expand_abbrev env (infer env argument) with
+          | TInt _ | TBool | TBuf _ -> ()
+          | t -> checker_error env "Unsupported variadic C argument type: %a" ptyp t
+        ) extra;
+        output
+      end else if t = TAny then
         let _ = List.map (infer env) es in
         TAny
       else

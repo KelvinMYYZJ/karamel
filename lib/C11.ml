@@ -42,6 +42,8 @@ and declarator =
   | Pointer of qualifier list * declarator
   | Array of qualifier list * declarator * expr option
   | Function of calling_convention option * declarator * params
+  | Variadic of declarator
+      (** Marks an external Function declarator whose fixed parameters are followed by ellipsis. *)
   | LinkName of declarator * string
       (** An external declarator bound to a native symbol through an assembler label. *)
 

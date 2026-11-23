@@ -171,6 +171,8 @@ and print_flag = function
       string ("__attribute__((target = "^s^"))")
   | CLinkName name ->
       string ("link_name " ^ name)
+  | CVariadic ->
+      string "c_variadic"
   | Workspace ->
       string "workspace"
 

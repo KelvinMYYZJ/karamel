@@ -147,7 +147,8 @@ and p_type_declarator d =
     | Array (qs, d, s) ->
         let s = match s with Some s -> p_expr s | None -> empty in
         p_noptr d ^^ lbracket ^^ p_qualifiers_break qs ^^ s ^^ rbracket
-    | Function (cc, d, params) ->
+    | (Function (cc, d, params) as function_decl)
+    | (Variadic (Function (cc, d, params)) as function_decl) ->
         let cc = match cc with Some cc -> print_cc cc ^^ break1 | None -> empty in
         let params =
           if params = [] then
@@ -158,7 +159,13 @@ and p_type_declarator d =
               group (p_qualifiers_break qs ^^ p_type_spec spec ^/^ p_any decl)
             ) params
         in
+        let params = match function_decl with
+          | Variadic _ -> params ^^ comma ^^ break 1 ^^ string "..."
+          | _ -> params
+        in
         group (cc ^^ p_noptr d ^^ parens_with_nesting params)
+    | Variadic _ ->
+        failwith "A variadic declarator must wrap a function with fixed parameters"
     | d ->
         lparen ^^ p_any d ^^ rparen
   and p_any = function

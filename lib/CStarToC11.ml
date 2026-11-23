@@ -1543,6 +1543,10 @@ let mk_type_or_external m (w: where) ?(is_inline_static=false) (d: decl): C.decl
             fst (KList.split (List.length ts) pp)
         in
         let qs, spec, decl = mk_spec_and_declarator_f m cc name t (List.combine arg_names ts) in
+        let decl = if List.mem CVariadic flags then
+          if ts = [] then failwith "A variadic C declaration requires fixed parameters"
+          else C.Variadic decl
+        else decl in
         let inline =
           if List.mem NoInline flags then
             Some C11.NoInline
